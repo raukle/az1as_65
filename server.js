@@ -1,74 +1,33 @@
-import { serve } from "bun";
-import { writeFileSync, readFileSync, existsSync } from "fs";
+import { serve } from 'bun';
 
-// File to store the password
-const passwordFile = "password.json";
+// The secret password to check against
+const correctPassword = 'swordfish';
 
-// Function to load the password from the JSON file
-const loadPasswordFromFile = () => {
-  if (existsSync(passwordFile)) {
-    const data = readFileSync(passwordFile, "utf8");
-    const json = JSON.parse(data);
-    return json.password;
-  }
-  return null;
-};
-
-// Load the stored password from the password file
-const storedPassword = loadPasswordFromFile();
-if (!storedPassword) {
-  console.error("Password file is missing or empty.");
-  process.exit(1); // Exit if no password is found
-}
-
-// Serve the login page (HTML and CSS)
+// Create a server to listen for the password check
 serve({
-  fetch(req) {
-    if (req.url === "/" || req.url === "/index.html") {
-      return new Response(Bun.file("index.html"), {
-        headers: { "Content-Type": "text/html" },
-      });
+  async fetch(req) {
+    if (req.method === 'POST' && req.url === '/check-password') {
+      // Read the body of the request to get the password
+      const { password } = await req.json();
+
+      // Compare the provided password to the correct password
+      if (password === correctPassword) {
+        return new Response('Password correct!', {
+          status: 200,
+        });
+      } else {
+        return new Response('Incorrect password.', {
+          status: 401,
+        });
+      }
     }
 
-    return new Response("Not found", { status: 404 });
+    // Serve the HTML page for password entry
+    return new Response(await fetch('./index.html'), {
+      headers: { 'Content-Type': 'text/html' },
+    });
   },
 });
 
-// Handle password checking via POST request
-serve(
-  {
-    async fetch(req) {
-      if (req.method === "POST" && req.url === "/check-password") {
-        try {
-          const { password: userPassword } = await req.json(); // Get the password from the request body
-
-          // Compare the submitted password with the stored one
-          if (userPassword === storedPassword) {
-            return new Response(JSON.stringify({ success: true }), {
-              status: 200,
-              headers: { "Content-Type": "application/json" },
-            });
-          }
-
-          return new Response(JSON.stringify({ success: false }), {
-            status: 401,
-            headers: { "Content-Type": "application/json" },
-          });
-        } catch (error) {
-          return new Response(
-            JSON.stringify({
-              success: false,
-              message: "Error processing request",
-            }),
-            { status: 500, headers: { "Content-Type": "application/json" } },
-          );
-        }
-      }
-
-      return new Response("Not found", { status: 404 });
-    },
-  },
-  {
-    port: 3000, // Default port
-  },
-);
+// Start the server on port 3000
+console.log('Server running at http://localhost:3000');
