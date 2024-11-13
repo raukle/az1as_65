@@ -57,40 +57,50 @@
 <div class="content">
     <p>To access the content, please enter the password below:</p>
 
-    <form name="loginForm" onsubmit="return checkPassword()">
+    <form id="loginForm">
         Password: <input type="password" name="password" id="password">
         <input type="submit" value="Submit">
     </form>
 
     <p class="error-message" id="errorMessage" style="display:none;">Incorrect password. Please try again.</p>
 
-    <div class="protected-content" id="protectedContent">
+    <div class="protected-content" id="protectedContent" style="display:none;">
         <h2>Welcome! You've unlocked the content.</h2>
         <p>This is the secret content that was hidden behind the password. Only authorized users with the correct password can see this message!</p>
     </div>
 </div>
 
 <script>
-    // Define a simple password for this example
-    const correctPassword = "swordfish";
+    // When the form is submitted, check the password with the server
+    document.getElementById("loginForm").addEventListener("submit", async (event) => {
+        event.preventDefault();
 
-    // Function to check password
-    function checkPassword() {
-        var passwordInput = document.loginForm.password.value;
-        var errorMessage = document.getElementById("errorMessage");
-        var protectedContent = document.getElementById("protectedContent");
+        const password = document.getElementById("password").value;
+        const errorMessage = document.getElementById("errorMessage");
+        const protectedContent = document.getElementById("protectedContent");
 
-        if (passwordInput === correctPassword) {
-            // Show the protected content
-            protectedContent.style.display = "block";
-            errorMessage.style.display = "none"; // Hide the error message
-            return false; // Prevent form submission
-        } else {
-            // Show the error message
-            errorMessage.style.display = "block";
-            return false; // Prevent form submission
+        try {
+            const response = await fetch('/check-password', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ password })
+            });
+
+            if (response.ok) {
+                // Password is correct, show protected content
+                protectedContent.style.display = 'block';
+                errorMessage.style.display = 'none';
+            } else {
+                // Incorrect password, show error message
+                errorMessage.style.display = 'block';
+                protectedContent.style.display = 'none';
+            }
+        } catch (error) {
+            console.error('Error:', error);
         }
-    }
+    });
 </script>
 
 </body>
