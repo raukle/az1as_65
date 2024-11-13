@@ -1,137 +1,97 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Login</title>
-        <style>
-            /* Basic Reset */
-            * {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Password Protected Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background-color: #f4f4f9;
+        }
+        .content {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #333;
+        }
+        form {
+            margin-bottom: 20px;
+        }
+        input[type="password"] {
+            padding: 8px;
+            font-size: 14px;
+            width: 200px;
+        }
+        input[type="submit"] {
+            padding: 8px 15px;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #5c6bc0;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+        }
+        input[type="submit"]:hover {
+            background-color: #3f51b5;
+        }
+        .protected-content {
+            display: none;
+            margin-top: 20px;
+        }
+        .error-message {
+            color: red;
+        }
+    </style>
+</head>
+<body>
 
-            /* Body Styling */
-            body {
-                font-family: "Arial", sans-serif;
-                background-color: #121212;
-                color: #fff;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-            }
+<h1>Password Protected Content</h1>
 
-            /* Container */
-            .container {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                width: 100%;
-                height: 100%;
-            }
+<div class="content">
+    <p>To access the content, please enter the password below:</p>
 
-            /* Login Box */
-            .login-box {
-                background-color: #1c1c1c;
-                padding: 2rem;
-                border-radius: 12px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-                text-align: center;
-                width: 300px;
-            }
+    <form name="loginForm" onsubmit="return checkPassword()">
+        Password: <input type="password" name="password" id="password">
+        <input type="submit" value="Submit">
+    </form>
 
-            /* Input Styles */
-            input {
-                width: 100%;
-                padding: 1rem;
-                margin: 1rem 0;
-                border: 2px solid #444;
-                border-radius: 8px;
-                background-color: #2c2c2c;
-                color: #fff;
-                font-size: 1rem;
-            }
+    <p class="error-message" id="errorMessage" style="display:none;">Incorrect password. Please try again.</p>
 
-            input:focus {
-                outline: none;
-                border-color: #4caf50;
-            }
+    <div class="protected-content" id="protectedContent">
+        <h2>Welcome! You've unlocked the content.</h2>
+        <p>This is the secret content that was hidden behind the password. Only authorized users with the correct password can see this message!</p>
+    </div>
+</div>
 
-            /* Button Styling */
-            button {
-                width: 100%;
-                padding: 1rem;
-                background-color: #4caf50;
-                border: none;
-                border-radius: 8px;
-                color: white;
-                font-size: 1rem;
-                cursor: pointer;
-            }
+<script>
+    // Define a simple password for this example
+    const correctPassword = "swordfish";
 
-            button:hover {
-                background-color: #45a049;
-            }
+    // Function to check password
+    function checkPassword() {
+        var passwordInput = document.loginForm.password.value;
+        var errorMessage = document.getElementById("errorMessage");
+        var protectedContent = document.getElementById("protectedContent");
 
-            /* Error Message */
-            .error {
-                color: #e74c3c;
-                font-size: 0.9rem;
-                margin-top: 1rem;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <div class="login-box">
-                <h1>Login</h1>
-                <form id="login-form">
-                    <input
-                        type="password"
-                        id="password"
-                        placeholder="Enter your password"
-                        required
-                    />
-                    <button type="submit">Submit</button>
-                </form>
-                <p id="error-message" class="error"></p>
-            </div>
-        </div>
+        if (passwordInput === correctPassword) {
+            // Show the protected content
+            protectedContent.style.display = "block";
+            errorMessage.style.display = "none"; // Hide the error message
+            return false; // Prevent form submission
+        } else {
+            // Show the error message
+            errorMessage.style.display = "block";
+            return false; // Prevent form submission
+        }
+    }
+</script>
 
-        <script>
-            document
-                .getElementById("login-form")
-                .addEventListener("submit", async (event) => {
-                    event.preventDefault();
-
-                    const password = document.getElementById("password").value;
-
-                    try {
-                        const response = await fetch("/check-password", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                            },
-                            body: JSON.stringify({ password }),
-                        });
-
-                        const data = await response.json();
-
-                        if (data.success) {
-                            window.location.href = "/dashboard"; // Redirect to dashboard or another page
-                        } else {
-                            document.getElementById(
-                                "error-message",
-                            ).textContent = "Incorrect password!";
-                        }
-                    } catch (error) {
-                        console.error("Error:", error);
-                        document.getElementById("error-message").textContent =
-                            "Error processing the request!";
-                    }
-                });
-        </script>
-    </body>
+</body>
 </html>
