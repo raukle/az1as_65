@@ -71,30 +71,8 @@
     </div>
 </div>
 
-<script>
-    // Define the password for the page
-    const correctPassword = "swordfish";  // Change this to any password you'd like
-
-    // When the form is submitted, check the password
-    document.getElementById("loginForm").addEventListener("submit", function(event) {
-        event.preventDefault();  // Prevent form submission
-        
-        const passwordInput = document.getElementById("password").value;
-        const errorMessage = document.getElementById("errorMessage");
-        const protectedContent = document.getElementById("protectedContent");
-
-        // Check if the entered password matches the correct password
-        if (passwordInput === correctPassword) {
-            // If correct, show the protected content
-            protectedContent.style.display = "block";
-            errorMessage.style.display = "none"; // Hide error message if password is correct
-        } else {
-            // If incorrect, show an error message
-            errorMessage.style.display = "block";
-            protectedContent.style.display = "none"; // Hide content if password is incorrect
-        }
-    });
-</script>
+<!-- Link to the external JavaScript file in the "public" directory -->
+<script src="server.js"></script>
 
 </body>
 </html>
