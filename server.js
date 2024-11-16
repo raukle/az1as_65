@@ -1,4 +1,6 @@
 import { serve } from 'bun';
+import fs from 'fs';
+import path from 'path';
 
 // The secret password to check against
 const correctPassword = 'swordfish';
@@ -23,7 +25,10 @@ serve({
     }
 
     // Serve the HTML page for password entry
-    return new Response(await fetch('./index.html'), {
+    const htmlPath = path.resolve('./index.html');
+    const htmlContent = fs.readFileSync(htmlPath, 'utf-8');
+
+    return new Response(htmlContent, {
       headers: { 'Content-Type': 'text/html' },
     });
   },
