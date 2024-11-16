@@ -1,38 +1,43 @@
-import { serve } from 'bun';
-import fs from 'fs';
-import path from 'path';
+const express = require('express');
+const fs = require('fs');
+const path = require('path');
 
 // The secret password to check against
 const correctPassword = 'swordfish';
 
-// Create a server to listen for the password check
-serve({
-  async fetch(req) {
-    if (req.method === 'POST' && req.url === '/check-password') {
-      // Read the body of the request to get the password
-      const { password } = await req.json();
+// Create an Express app
+const app = express();
 
-      // Compare the provided password to the correct password
-      if (password === correctPassword) {
-        return new Response('Password correct!', {
-          status: 200,
-        });
-      } else {
-        return new Response('Incorrect password.', {
-          status: 401,
-        });
-      }
+// Middleware to parse JSON bodies
+app.use(express.json());
+
+// Route for handling the password check
+app.post('/check-password', (req, res) => {
+    const { password } = req.body;
+
+    if (password === correctPassword) {
+        // If the password is correct
+        res.status(200).send('Password correct!');
+    } else {
+        // If the password is incorrect
+        res.status(401).send('Incorrect password.');
     }
+});
 
-    // Serve the HTML page for password entry
-    const htmlPath = path.resolve('./index.html');
-    const htmlContent = fs.readFileSync(htmlPath, 'utf-8');
-
-    return new Response(htmlContent, {
-      headers: { 'Content-Type': 'text/html' },
+// Route to serve the HTML page
+app.get('/', (req, res) => {
+    const htmlPath = path.resolve(__dirname, 'index.html');
+    fs.readFile(htmlPath, 'utf-8', (err, htmlContent) => {
+        if (err) {
+            res.status(500).send('Error reading HTML file');
+        } else {
+            res.setHeader('Content-Type', 'text/html');
+            res.send(htmlContent);
+        }
     });
-  },
 });
 
 // Start the server on port 3000
-console.log('Server running at http://localhost:3000');
+app.listen(3000, () => {
+    console.log('Server running at http://localhost:3000');
+});
